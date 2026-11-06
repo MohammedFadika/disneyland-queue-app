@@ -11,7 +11,7 @@ class RideServiceImpl(repo: RideRepository) extends RideService {
         case Right(records) => records
             .groupBy(_.rideId)
             .values
-            .map(lOfRideHistory => lOfRideHistory.maxBy(k => (k.date, k.timestamp))) // single latest record now shape of: RideRecordsdata
+            .map(lOfRideHistory => lOfRideHistory.maxBy(k => (k.date, k.timestamp))) // single latest records now shape of: RideRecordsdata
             .map(latestRecord => RideState(latestRecord.rideId, latestRecord.rideName, 
                 { if (latestRecord.isOpen && latestRecord.waitTime >= 0) {RideStatus.Open(latestRecord.waitTime)}
                     else if (!latestRecord.isOpen) {RideStatus.Closed}
@@ -21,13 +21,22 @@ class RideServiceImpl(repo: RideRepository) extends RideService {
                 .toList
                 .sortBy(_.rideId)
                 
-             
-
         case Left(error) => List()
     } 
     }
 
-    override def findRides(rideID: String): Option[RideState] = ???
+    override def findRides(rideID: String): Option[RideState] = listRides().find(_.rideId == rideID)
 
-    override def recommendRides(): List[RideState] =  ??? 
+    override def recommendRides(): List[RideState] =  listRides().filter(ride => 
+        ride.status match 
+            case RideStatus.Open(_) => true
+            case _                  => false 
+            )
+        .sortBy(ride => 
+        ride.status match
+                case RideStatus.Open(w) => (w, ride.rideId)
+                case _                  => (0, "")
+                )
+        .take(3)
+
 }
