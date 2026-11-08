@@ -9,7 +9,7 @@ import scala.io.StdIn.readLine
 
     while(usingCli) {
 
-        val testRepo : InMemoryRideRepository = new InMemoryRideRepository
+        val testRepo : RideRepository  = new csvRepoOutAdapter("queuetimes.csv")
         val command = readLine("Welcome to your Disney CLI ! You can List rides, find one, a get one recommended\n")
         
         if (command == "exit") {
