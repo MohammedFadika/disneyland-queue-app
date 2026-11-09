@@ -10,9 +10,10 @@ class csvRepoOutAdapter(repoPath: String) extends RideRepository {
         scala.io.Source.fromFile(repoPath)
             .getLines()
             .drop(1)
-            .map(line => line.split(","))
+            .map(line => line.split( """,(?=(?:[^"]*"[^"]*")*[^"]*$)""" ))
             .map(array => RideRecordsData(array(0), array(1), array(2).toBoolean, array(3).toInt, array(4), array(5)))
             .toList
     )
+
 
 }
